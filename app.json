@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Match Tile 3D",
+    "slug": "match-tile-3d",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a2e"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.matchtile3d",
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "com.yourname.matchtile3d",
+      "versionCode": 1
+    },
+    "plugins": [
+      "expo-font",
+      "expo-asset",
+      "expo-haptics"
+    ]
+  }
+}
