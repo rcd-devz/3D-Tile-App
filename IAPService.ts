@@ -1,8 +1,13 @@
-import Purchases, {
-  PurchasesPackage,
-  CustomerInfo,
-} from 'react-native-purchases';
 import { Platform } from 'react-native';
+
+// Conditionally import react-native-purchases so the app works in Expo Go.
+// In Expo Go the native module is unavailable; IAP calls will be silent no-ops.
+let Purchases: any = null;
+try {
+  Purchases = require('react-native-purchases').default;
+} catch {
+  // Running in Expo Go — IAP not available
+}
 
 // ============================================================
 // IN-APP PURCHASE SERVICE (RevenueCat)
@@ -24,6 +29,11 @@ class IAPService {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
+    if (!Purchases) {
+      console.log('[IAP] Skipping RevenueCat init — not available in Expo Go');
+      return;
+    }
+
     try {
       const apiKey =
         Platform.OS === 'ios'
@@ -41,7 +51,8 @@ class IAPService {
   /**
    * Fetch available packages/products from RevenueCat.
    */
-  async getOfferings(): Promise<PurchasesPackage[]> {
+  async getOfferings(): Promise<any[]> {
+    if (!Purchases) return [];
     try {
       const offerings = await Purchases.getOfferings();
       if (offerings.current) {
@@ -58,8 +69,9 @@ class IAPService {
    * Purchase a specific package.
    */
   async purchasePackage(
-    pkg: PurchasesPackage
-  ): Promise<{ success: boolean; customerInfo?: CustomerInfo }> {
+    pkg: any
+  ): Promise<{ success: boolean; customerInfo?: any }> {
+    if (!Purchases) return { success: false };
     try {
       const { customerInfo } = await Purchases.purchasePackage(pkg);
       return { success: true, customerInfo };
@@ -77,7 +89,8 @@ class IAPService {
    */
   async purchaseProduct(
     productId: string
-  ): Promise<{ success: boolean; customerInfo?: CustomerInfo }> {
+  ): Promise<{ success: boolean; customerInfo?: any }> {
+    if (!Purchases) return { success: false };
     try {
       const { customerInfo } = await Purchases.purchaseStoreProduct({
         identifier: productId,
@@ -95,7 +108,8 @@ class IAPService {
   /**
    * Restore previous purchases.
    */
-  async restorePurchases(): Promise<CustomerInfo | null> {
+  async restorePurchases(): Promise<any | null> {
+    if (!Purchases) return null;
     try {
       const customerInfo = await Purchases.restorePurchases();
       return customerInfo;
@@ -108,7 +122,8 @@ class IAPService {
   /**
    * Get current customer info for entitlement checks.
    */
-  async getCustomerInfo(): Promise<CustomerInfo | null> {
+  async getCustomerInfo(): Promise<any | null> {
+    if (!Purchases) return null;
     try {
       const customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;
