@@ -30,8 +30,12 @@ export function HomeScreen() {
     navigation.navigate('Game', { level: profile.level });
   };
 
-  // Calculate progress ring
-  const progressPercent = 0.15; // Placeholder - would be based on XP or level milestones
+  // Calculate progress ring based on completed levels out of 15 hand-crafted levels
+  const TOTAL_HANDCRAFTED_LEVELS = 15;
+  const progressPercent = Math.min(
+    Object.keys(profile.levelProgress).length / TOTAL_HANDCRAFTED_LEVELS,
+    1
+  );
   const ringSize = 180;
 
   return (
