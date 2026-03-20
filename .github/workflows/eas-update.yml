@@ -1,0 +1,46 @@
+name: EAS Update
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  update:
+    name: Publish EAS Update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Link EAS project (first run only)
+        run: eas init --non-interactive 2>/dev/null || true
+
+      - name: Commit app.json if projectId was added
+        run: |
+          if ! git diff --quiet app.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add app.json
+            git commit -m "chore: link EAS project [skip ci]"
+            git push
+          fi
+
+      - name: Publish update
+        run: eas update --auto --non-interactive

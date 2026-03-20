@@ -25,6 +25,12 @@
       "package": "com.yourname.matchtile3d",
       "versionCode": 1
     },
+    "updates": {
+      "url": "https://u.expo.dev/PLACEHOLDER"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "plugins": [
       "expo-font",
       "expo-asset"
