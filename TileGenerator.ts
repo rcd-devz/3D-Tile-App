@@ -80,26 +80,23 @@ export function generateTilePile(config: LevelConfig): TileObject[] {
     }
   }
 
-  // Compute initial accessibility
-  computeAccessibility(tiles);
-
-  return tiles;
+  return computeAccessibility(tiles);
 }
 
 /**
  * Determine which tiles are accessible (not blocked by tiles above).
  * A tile is accessible if no other visible tile overlaps it from above.
+ * Returns a new array with updated isAccessible values (no mutation).
  */
-export function computeAccessibility(tiles: TileObject[]) {
+export function computeAccessibility(tiles: TileObject[]): TileObject[] {
   const visible = tiles.filter((t) => t.isVisible);
 
   // Sort by z (height) descending - top tiles first
   const sorted = [...visible].sort((a, b) => b.position.z - a.position.z);
 
-  for (const tile of tiles) {
+  return tiles.map((tile) => {
     if (!tile.isVisible) {
-      tile.isAccessible = false;
-      continue;
+      return tile.isAccessible ? { ...tile, isAccessible: false } : tile;
     }
 
     // Check if any visible tile is above this one and overlapping
@@ -115,8 +112,9 @@ export function computeAccessibility(tiles: TileObject[]) {
       return dx < overlapDist && dy < overlapDist;
     });
 
-    tile.isAccessible = !isBlocked;
-  }
+    const isAccessible = !isBlocked;
+    return isAccessible !== tile.isAccessible ? { ...tile, isAccessible } : tile;
+  });
 }
 
 /**

@@ -176,12 +176,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Remove tile from scene
-    const newTiles = tiles.map((t) =>
+    const removedTiles = tiles.map((t) =>
       t.id === tileId ? { ...t, isVisible: false } : t
     );
 
-    // Update accessibility of remaining tiles
-    updateAccessibility(newTiles);
+    // Update accessibility of remaining tiles (returns new array, no mutation)
+    const newTiles = updateAccessibility(removedTiles);
 
     set({ tiles: newTiles, tray: newTray });
 
@@ -267,8 +267,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           return { ...t, position: positions[idx] };
         });
 
-        updateAccessibility(newTiles);
-        set({ tiles: newTiles, powerUps: newPowerUps });
+        set({ tiles: updateAccessibility(newTiles), powerUps: newPowerUps });
         break;
       }
 
@@ -283,11 +282,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const newTray = [...tray];
           newTray[lastFilledIndex] = null;
 
-          const newTiles = tiles.map((t) =>
+          const undoTiles = tiles.map((t) =>
             t.id === returnedTile.id ? { ...t, isVisible: true } : t
           );
-          updateAccessibility(newTiles);
-          set({ tray: newTray, tiles: newTiles, powerUps: newPowerUps });
+          set({ tray: newTray, tiles: updateAccessibility(undoTiles), powerUps: newPowerUps });
         }
         break;
       }
@@ -306,18 +304,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         for (const [type, typeTiles] of accessibleByType) {
           if (typeTiles.length >= 3) {
             const toRemove = typeTiles.slice(0, 3);
-            const newTiles = tiles.map((t) =>
+            const magnetTiles = tiles.map((t) =>
               toRemove.some((r) => r.id === t.id)
                 ? { ...t, isVisible: false }
                 : t
             );
-            updateAccessibility(newTiles);
             const { score, combo } = get();
             const comboMultiplier = 1 + combo * GAME_CONFIG.comboMultiplier;
             const points = Math.floor(GAME_CONFIG.matchScore * comboMultiplier);
 
             set({
-              tiles: newTiles,
+              tiles: updateAccessibility(magnetTiles),
               score: score + points,
               combo: Math.min(combo + 1, GAME_CONFIG.maxCombo),
               powerUps: newPowerUps,
@@ -553,15 +550,14 @@ function calculateStars(
   return 1; // Always at least 1 star for completing
 }
 
-function updateAccessibility(tiles: TileObject[]) {
+function updateAccessibility(tiles: TileObject[]): TileObject[] {
   // A tile is accessible if no other visible tile is directly above it
   // Simplified: check if any tile has a higher z and overlapping x,y
   const visibleTiles = tiles.filter((t) => t.isVisible);
 
-  for (const tile of tiles) {
+  return tiles.map((tile) => {
     if (!tile.isVisible) {
-      tile.isAccessible = false;
-      continue;
+      return tile.isAccessible ? { ...tile, isAccessible: false } : tile;
     }
 
     const isBlocked = visibleTiles.some((other) => {
@@ -575,6 +571,7 @@ function updateAccessibility(tiles: TileObject[]) {
       return dx < overlapThreshold && dy < overlapThreshold;
     });
 
-    tile.isAccessible = !isBlocked;
-  }
+    const isAccessible = !isBlocked;
+    return isAccessible !== tile.isAccessible ? { ...tile, isAccessible } : tile;
+  });
 }

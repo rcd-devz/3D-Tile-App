@@ -67,19 +67,23 @@ export function GameScreen() {
 
   // Timer
   useEffect(() => {
+    // Always clear any existing interval before potentially starting a new one
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
     if (phase === 'playing') {
       timerRef.current = setInterval(() => {
         tickTimer();
       }, 1000);
-    } else {
+    }
+
+    return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [phase]);
 
