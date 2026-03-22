@@ -234,6 +234,19 @@ export class GameScene {
   }
 
   /**
+   * Flash a tile with a brief white glow to confirm a tap before it disappears.
+   * Call this immediately before selectTile() so the player sees feedback.
+   */
+  flashTile(tileId: string): void {
+    const mesh = this.tileMeshes.get(tileId);
+    if (!mesh) return;
+    const mat = mesh.material as THREE.MeshStandardMaterial;
+    mat.emissive = new THREE.Color(0xffffff);
+    mat.emissiveIntensity = 0.8;
+    // The tile will be hidden by updateTiles() after ~1 frame, so no cleanup needed
+  }
+
+  /**
    * Animate a tile being removed (scale down + fade out).
    */
   animateTileRemoval(tileId: string, duration: number = 300): Promise<void> {

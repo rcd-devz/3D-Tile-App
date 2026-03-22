@@ -181,6 +181,8 @@ export function GameScreen() {
       );
 
       if (tileId) {
+        // Brief white flash on the 3D tile before it moves to the tray
+        gameSceneRef.current?.flashTile(tileId);
         selectTile(tileId);
       }
     },
