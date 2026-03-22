@@ -75,7 +75,7 @@ export function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <TopBar />
 
-      {/* Treasure chest buttons */}
+      {/* Treasure chest buttons + piggy bank in a single row */}
       <View style={styles.chestRow}>
         <TouchableOpacity style={styles.chestButton} onPress={handleChestPress}>
           <Text style={styles.chestEmoji}>💎</Text>
@@ -85,12 +85,10 @@ export function HomeScreen() {
           <Text style={styles.chestEmoji}>🎁</Text>
           <Text style={styles.chestText}>Open</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.piggyBank} onPress={handlePiggyPress}>
+          <Text style={styles.piggyEmoji}>🐷</Text>
+        </TouchableOpacity>
       </View>
-
-      {/* Piggy bank */}
-      <TouchableOpacity style={styles.piggyBank} onPress={handlePiggyPress}>
-        <Text style={styles.piggyEmoji}>🐷</Text>
-      </TouchableOpacity>
 
       {/* Level ring */}
       <View style={styles.levelContainer}>
@@ -134,19 +132,20 @@ const styles = StyleSheet.create({
   },
   chestRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
     marginTop: 8,
+    gap: 8,
   },
   chestButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.buttonGreen,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 12,
     gap: 8,
-    flex: 0.48,
+    flex: 1,
     justifyContent: 'center',
   },
   chestEmoji: {
@@ -158,8 +157,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   piggyBank: {
-    marginLeft: 16,
-    marginTop: 12,
     width: 50,
     height: 50,
     borderRadius: 25,

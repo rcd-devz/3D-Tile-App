@@ -20,10 +20,7 @@ export function TopBar() {
     <View style={styles.container}>
       {/* Lives */}
       <TouchableOpacity style={styles.pill} onPress={goToShop}>
-        <View style={styles.heartBadge}>
-          <Text style={styles.heartEmoji}>❤️</Text>
-          <Text style={styles.heartCount}>{profile.lives}</Text>
-        </View>
+        <Text style={styles.heartEmoji}>❤️</Text>
         <Text style={styles.pillText}>
           {profile.lives >= profile.maxLives ? 'FULL' : profile.lives}
         </Text>
@@ -71,26 +68,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     gap: 6,
   },
-  heartBadge: {
-    position: 'relative',
-  },
   heartEmoji: {
     fontSize: 18,
-  },
-  heartCount: {
-    position: 'absolute',
-    top: -2,
-    right: -8,
-    backgroundColor: COLORS.secondary,
-    color: COLORS.textPrimary,
-    fontSize: 10,
-    fontWeight: 'bold',
-    borderRadius: 8,
-    width: 16,
-    height: 16,
-    textAlign: 'center',
-    lineHeight: 16,
-    overflow: 'hidden',
   },
   coinEmoji: {
     fontSize: 18,

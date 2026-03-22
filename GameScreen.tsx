@@ -334,8 +334,8 @@ const styles = StyleSheet.create({
   },
   powerUpBadge: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
+    bottom: 0,
+    right: 0,
     backgroundColor: COLORS.accentGreen,
     borderRadius: 10,
     width: 20,
