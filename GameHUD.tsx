@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../config/constants';
 
@@ -23,6 +23,8 @@ export function GameHUD({
   onPause,
 }: GameHUDProps) {
   const insets = useSafeAreaInsets();
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseLoopRef = useRef<Animated.CompositeAnimation | null>(null);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -31,6 +33,38 @@ export function GameHUD({
   };
 
   const isLowTime = timerProgress < 0.25;
+
+  // Start/stop pulse animation based on low-time state
+  useEffect(() => {
+    if (isLowTime) {
+      pulseLoopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.08,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      pulseLoopRef.current.start();
+    } else {
+      if (pulseLoopRef.current) {
+        pulseLoopRef.current.stop();
+        pulseLoopRef.current = null;
+      }
+      pulseAnim.setValue(1);
+    }
+    return () => {
+      if (pulseLoopRef.current) {
+        pulseLoopRef.current.stop();
+      }
+    };
+  }, [isLowTime]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 4 }]}>
@@ -44,13 +78,19 @@ export function GameHUD({
           </View>
         </View>
 
-        {/* Timer */}
-        <View style={styles.timerSection}>
+        {/* Timer — pulses when time is low */}
+        <Animated.View
+          style={[
+            styles.timerSection,
+            isLowTime && styles.timerSectionLow,
+            { transform: [{ scale: pulseAnim }] },
+          ]}
+        >
           <Text style={styles.timerIcon}>⏱</Text>
           <Text style={[styles.timerText, isLowTime && styles.timerLow]}>
             {formatTime(timeRemaining)}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* Pause */}
         <TouchableOpacity style={styles.pauseButton} onPress={onPause}>
@@ -58,15 +98,13 @@ export function GameHUD({
         </TouchableOpacity>
       </View>
 
-      {/* Score bar */}
-      {score > 0 && (
-        <View style={styles.scoreRow}>
-          <Text style={styles.scoreText}>Score: {score}</Text>
-          {combo > 0 && (
-            <Text style={styles.comboText}>🔥 x{combo + 1} COMBO</Text>
-          )}
-        </View>
-      )}
+      {/* Score row — always visible */}
+      <View style={styles.scoreRow}>
+        <Text style={styles.scoreText}>Score: {score}</Text>
+        {combo > 0 && (
+          <Text style={styles.comboText}>🔥 x{combo + 1} COMBO</Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -113,6 +151,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     gap: 6,
+  },
+  timerSectionLow: {
+    backgroundColor: '#3d1515',
+    borderWidth: 1,
+    borderColor: COLORS.timerBarLow,
   },
   timerIcon: {
     fontSize: 16,

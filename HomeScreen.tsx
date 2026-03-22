@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Alert,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +23,7 @@ type NavProp = NativeStackNavigationProp<RootStackParamList>;
 export function HomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { profile, loadProfile } = useGameStore();
+  const playScaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     loadProfile();
@@ -30,7 +33,31 @@ export function HomeScreen() {
     navigation.navigate('Game', { level: profile.level });
   };
 
-  // Calculate progress ring based on completed levels out of 15 hand-crafted levels
+  const handleChestPress = () => {
+    Alert.alert('Coming Soon', 'Daily chests are coming in a future update!');
+  };
+
+  const handlePiggyPress = () => {
+    Alert.alert('Coming Soon', 'The savings piggy bank is coming soon!');
+  };
+
+  const handlePlayPressIn = () => {
+    Animated.spring(playScaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+      friction: 8,
+    }).start();
+  };
+
+  const handlePlayPressOut = () => {
+    Animated.spring(playScaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 5,
+    }).start();
+  };
+
+  // Calculate progress ring
   const TOTAL_HANDCRAFTED_LEVELS = 15;
   const progressPercent = Math.min(
     Object.keys(profile.levelProgress).length / TOTAL_HANDCRAFTED_LEVELS,
@@ -38,24 +65,30 @@ export function HomeScreen() {
   );
   const ringSize = 180;
 
+  // Compute the progress dot position along the ring border using trigonometry
+  const angle = -Math.PI / 2 + progressPercent * Math.PI * 2;
+  const dotRadius = ringSize / 2 - 3; // sit on the border center
+  const dotX = ringSize / 2 + dotRadius * Math.cos(angle) - 6;
+  const dotY = ringSize / 2 + dotRadius * Math.sin(angle) - 6;
+
   return (
     <SafeAreaView style={styles.container}>
       <TopBar />
 
       {/* Treasure chest buttons */}
       <View style={styles.chestRow}>
-        <TouchableOpacity style={styles.chestButton}>
+        <TouchableOpacity style={styles.chestButton} onPress={handleChestPress}>
           <Text style={styles.chestEmoji}>💎</Text>
           <Text style={styles.chestText}>Open</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.chestButton}>
+        <TouchableOpacity style={styles.chestButton} onPress={handleChestPress}>
           <Text style={styles.chestEmoji}>🎁</Text>
           <Text style={styles.chestText}>Open</Text>
         </TouchableOpacity>
       </View>
 
       {/* Piggy bank */}
-      <TouchableOpacity style={styles.piggyBank}>
+      <TouchableOpacity style={styles.piggyBank} onPress={handlePiggyPress}>
         <Text style={styles.piggyEmoji}>🐷</Text>
       </TouchableOpacity>
 
@@ -66,29 +99,29 @@ export function HomeScreen() {
             <Text style={styles.levelNumber}>{profile.level}</Text>
             <Text style={styles.levelLabel}>LEVEL</Text>
           </View>
-          {/* Progress indicator */}
+          {/* Progress dot — correctly positioned on the ring border */}
           <View
             style={[
-              styles.progressArc,
-              {
-                transform: [
-                  { rotate: `${-90 + progressPercent * 360}deg` },
-                ],
-              },
+              styles.progressDot,
+              { left: dotX, top: dotY },
             ]}
           />
         </View>
       </View>
 
-      {/* Play button */}
+      {/* Play button with scale press animation */}
       <View style={styles.playContainer}>
-        <TouchableOpacity
-          style={styles.playButton}
-          onPress={handlePlay}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.playIcon}>▶</Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: playScaleAnim }] }}>
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={handlePlay}
+            onPressIn={handlePlayPressIn}
+            onPressOut={handlePlayPressOut}
+            activeOpacity={1}
+          >
+            <Text style={styles.playIcon}>▶</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
@@ -166,14 +199,14 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginTop: -4,
   },
-  progressArc: {
+  progressDot: {
     position: 'absolute',
-    bottom: -3,
-    left: 20,
     width: 12,
     height: 12,
     borderRadius: 6,
     backgroundColor: '#9b59b6',
+    borderWidth: 2,
+    borderColor: COLORS.background,
   },
   playContainer: {
     alignItems: 'center',

@@ -16,7 +16,7 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourname.matchtile3d",
+      "bundleIdentifier": "com.gncdevs.matchtile3d",
       "buildNumber": "1"
     },
     "android": {
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
-      "package": "com.yourname.matchtile3d",
+      "package": "com.gncdevs.matchtile3d",
       "versionCode": 1
     },
     "updates": {

@@ -30,7 +30,7 @@ class IAPService {
     if (this.initialized) return;
 
     if (!Purchases) {
-      console.log('[IAP] Skipping RevenueCat init — not available in Expo Go');
+      if (__DEV__) console.log('[IAP] Skipping RevenueCat init — not available in Expo Go');
       return;
     }
 
@@ -42,9 +42,9 @@ class IAPService {
 
       Purchases.configure({ apiKey });
       this.initialized = true;
-      console.log('[IAP] RevenueCat initialized');
+      if (__DEV__) console.log('[IAP] RevenueCat initialized');
     } catch (error) {
-      console.warn('[IAP] Failed to initialize RevenueCat:', error);
+      if (__DEV__) console.warn('[IAP] Failed to initialize RevenueCat:', error);
     }
   }
 
@@ -60,7 +60,7 @@ class IAPService {
       }
       return [];
     } catch (error) {
-      console.warn('[IAP] Failed to fetch offerings:', error);
+      if (__DEV__) console.warn('[IAP] Failed to fetch offerings:', error);
       return [];
     }
   }
@@ -79,7 +79,7 @@ class IAPService {
       if (error.userCancelled) {
         return { success: false };
       }
-      console.warn('[IAP] Purchase failed:', error);
+      if (__DEV__) console.warn('[IAP] Purchase failed:', error);
       return { success: false };
     }
   }
@@ -100,7 +100,7 @@ class IAPService {
       if (error.userCancelled) {
         return { success: false };
       }
-      console.warn('[IAP] Purchase failed:', error);
+      if (__DEV__) console.warn('[IAP] Purchase failed:', error);
       return { success: false };
     }
   }
@@ -114,7 +114,7 @@ class IAPService {
       const customerInfo = await Purchases.restorePurchases();
       return customerInfo;
     } catch (error) {
-      console.warn('[IAP] Restore failed:', error);
+      if (__DEV__) console.warn('[IAP] Restore failed:', error);
       return null;
     }
   }
@@ -128,7 +128,7 @@ class IAPService {
       const customerInfo = await Purchases.getCustomerInfo();
       return customerInfo;
     } catch (error) {
-      console.warn('[IAP] Failed to get customer info:', error);
+      if (__DEV__) console.warn('[IAP] Failed to get customer info:', error);
       return null;
     }
   }

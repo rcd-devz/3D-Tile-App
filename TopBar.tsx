@@ -1,15 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGameStore } from '../store/gameStore';
 import { COLORS } from '../config/constants';
+import { RootStackParamList } from '../types';
+
+type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 export function TopBar() {
   const { profile } = useGameStore();
+  const navigation = useNavigation<NavProp>();
+
+  const goToShop = () => {
+    navigation.navigate('MainTabs', { screen: 'Shop' } as any);
+  };
 
   return (
     <View style={styles.container}>
       {/* Lives */}
-      <TouchableOpacity style={styles.pill}>
+      <TouchableOpacity style={styles.pill} onPress={goToShop}>
         <View style={styles.heartBadge}>
           <Text style={styles.heartEmoji}>❤️</Text>
           <Text style={styles.heartCount}>{profile.lives}</Text>
@@ -21,7 +31,7 @@ export function TopBar() {
       </TouchableOpacity>
 
       {/* Coins */}
-      <TouchableOpacity style={styles.pill}>
+      <TouchableOpacity style={styles.pill} onPress={goToShop}>
         <Text style={styles.coinEmoji}>🪙</Text>
         <Text style={styles.pillText}>{profile.coins}</Text>
         <Text style={styles.plusIcon}>+</Text>
