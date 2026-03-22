@@ -6,18 +6,12 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1a1a2e"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.gncdevs.matchtile3d",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "deploymentTarget": "15.1"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +19,8 @@
         "backgroundColor": "#1a1a2e"
       },
       "package": "com.gncdevs.matchtile3d",
-      "versionCode": 1
+      "versionCode": 1,
+      "minSdkVersion": 24
     },
     "updates": {
       "url": "https://u.expo.dev/PLACEHOLDER"
@@ -34,6 +29,12 @@
       "policy": "appVersion"
     },
     "plugins": [
+      ["expo-router"],
+      ["expo-splash-screen", {
+        "backgroundColor": "#1a1a2e",
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain"
+      }],
       "expo-font",
       "expo-asset"
     ],
