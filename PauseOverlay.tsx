@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { COLORS } from '../config/constants';
+import { COLORS } from './constants';
 
 const { width } = Dimensions.get('window');
 
@@ -16,19 +16,46 @@ interface PauseOverlayProps {
 }
 
 export function PauseOverlay({ onResume, onQuit }: PauseOverlayProps) {
+  const [confirmingQuit, setConfirmingQuit] = useState(false);
+
   return (
     <View style={styles.overlay}>
       <View style={styles.card}>
-        <Text style={styles.title}>Paused</Text>
-        <Text style={styles.emoji}>⏸</Text>
+        {!confirmingQuit ? (
+          <>
+            <Text style={styles.title}>Paused</Text>
+            <Text style={styles.emoji}>⏸</Text>
 
-        <TouchableOpacity style={styles.resumeButton} onPress={onResume}>
-          <Text style={styles.resumeText}>Resume</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.resumeButton} onPress={onResume}>
+              <Text style={styles.resumeText}>Resume</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.quitButton} onPress={onQuit}>
-          <Text style={styles.quitText}>Quit Level</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.quitButton}
+              onPress={() => setConfirmingQuit(true)}
+            >
+              <Text style={styles.quitText}>Quit Level</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.title}>Quit Level?</Text>
+            <Text style={styles.confirmSub}>
+              Your progress will be lost.
+            </Text>
+
+            <TouchableOpacity style={styles.confirmQuitButton} onPress={onQuit}>
+              <Text style={styles.confirmQuitText}>Yes, Quit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.resumeButton}
+              onPress={() => setConfirmingQuit(false)}
+            >
+              <Text style={styles.resumeText}>Keep Playing</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </View>
   );
@@ -61,6 +88,12 @@ const styles = StyleSheet.create({
     fontSize: 48,
     marginBottom: 24,
   },
+  confirmSub: {
+    color: COLORS.textSecondary,
+    fontSize: 14,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
   resumeButton: {
     width: '100%',
     height: 52,
@@ -88,5 +121,19 @@ const styles = StyleSheet.create({
   quitText: {
     color: COLORS.textMuted,
     fontSize: 16,
+  },
+  confirmQuitButton: {
+    width: '100%',
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  confirmQuitText: {
+    color: COLORS.textPrimary,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

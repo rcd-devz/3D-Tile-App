@@ -1,5 +1,5 @@
-import { TileObject, TileObjectType, LevelConfig } from '../types';
-import { SIZES } from '../config/constants';
+import { TileObject, TileObjectType, LevelConfig } from './types';
+import { SIZES } from './constants';
 
 // ============================================================
 // TILE PILE GENERATOR

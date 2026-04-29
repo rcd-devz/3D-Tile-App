@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { TileObject } from '../types';
-import { OBJECT_METADATA } from '../config/levels';
-import { COLORS, SIZES } from '../config/constants';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions, Animated } from 'react-native';
+import { TileObject } from './types';
+import { OBJECT_METADATA } from './levels';
+import { COLORS, SIZES } from './constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SLOT_SIZE = (SCREEN_WIDTH - 48) / SIZES.traySlotCount;
@@ -11,27 +11,74 @@ interface MatchTrayProps {
   tray: (TileObject | null)[];
 }
 
+// Individual animated slot — triggers slide-up + fade when a tile appears
+function TraySlot({ tile, index }: { tile: TileObject | null; index: number }) {
+  const prevTileRef = useRef<TileObject | null>(null);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const wasEmpty = prevTileRef.current === null;
+    const nowFilled = tile !== null;
+
+    if (wasEmpty && nowFilled) {
+      // Reset and animate in
+      slideAnim.setValue(14);
+      fadeAnim.setValue(0);
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (nowFilled) {
+      // Already has a tile (e.g. initial render) — show immediately
+      slideAnim.setValue(0);
+      fadeAnim.setValue(1);
+    } else {
+      slideAnim.setValue(0);
+      fadeAnim.setValue(0);
+    }
+
+    prevTileRef.current = tile;
+  }, [tile]);
+
+  return (
+    <View style={styles.slot}>
+      {tile ? (
+        <Animated.View
+          style={[
+            styles.tileInSlot,
+            { backgroundColor: OBJECT_METADATA[tile.type].color + '33' },
+            {
+              transform: [{ translateY: slideAnim }],
+              opacity: fadeAnim,
+            },
+          ]}
+        >
+          <Text style={styles.tileEmoji}>
+            {OBJECT_METADATA[tile.type].emoji}
+          </Text>
+        </Animated.View>
+      ) : (
+        <View style={styles.emptySlot} />
+      )}
+    </View>
+  );
+}
+
 export function MatchTray({ tray }: MatchTrayProps) {
   return (
     <View style={styles.container}>
       <View style={styles.trayRow}>
         {tray.map((slot, index) => (
-          <View key={index} style={styles.slot}>
-            {slot ? (
-              <View
-                style={[
-                  styles.tileInSlot,
-                  { backgroundColor: OBJECT_METADATA[slot.type].color + '33' },
-                ]}
-              >
-                <Text style={styles.tileEmoji}>
-                  {OBJECT_METADATA[slot.type].emoji}
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.emptySlot} />
-            )}
-          </View>
+          <TraySlot key={index} tile={slot} index={index} />
         ))}
       </View>
     </View>

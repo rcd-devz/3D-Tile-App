@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../config/constants';
-import { LeaderboardEntry } from '../types';
-import { TopBar } from '../components/TopBar';
+import { COLORS } from './constants';
+import { LeaderboardEntry } from './types';
+import { TopBar } from './TopBar';
 
 // Mock leaderboard data (replace with API calls)
 const MOCK_LEADERBOARD: LeaderboardEntry[] = [

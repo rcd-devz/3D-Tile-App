@@ -8,10 +8,10 @@ import {
   TileObjectType,
   PowerUp,
   PowerUpType,
-} from '../types';
-import { getLevelConfig } from '../config/levels';
-import { SIZES, GAME_CONFIG } from '../config/constants';
-import { generateTilePile } from '../game/TileGenerator';
+} from './types';
+import { getLevelConfig } from './levels';
+import { SIZES, GAME_CONFIG } from './constants';
+import { generateTilePile } from './TileGenerator';
 
 // ============================================================
 // GAME STORE (Zustand)
@@ -67,6 +67,24 @@ const DEFAULT_POWERUPS: PowerUp[] = [
   { type: 'magnet', count: 3, icon: '🧲' },
 ];
 
+// Validate that saved data has the expected shape before trusting it
+function isValidProfile(obj: any): obj is PlayerProfile {
+  return (
+    obj !== null &&
+    typeof obj === 'object' &&
+    typeof obj.level === 'number' &&
+    typeof obj.coins === 'number' &&
+    typeof obj.lives === 'number' &&
+    typeof obj.maxLives === 'number' &&
+    typeof obj.lastLifeRegenTime === 'number' &&
+    typeof obj.levelProgress === 'object' &&
+    obj.levelProgress !== null
+  );
+}
+
+// Module-level timeout ID so it can be cleared across Zustand actions
+let hintTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
 export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
   phase: 'idle',
@@ -86,6 +104,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // ---- GAME FLOW ----
 
   startLevel: (level: number) => {
+    // Clear any stale hint highlight timeout from a previous level
+    if (hintTimeoutId !== null) {
+      clearTimeout(hintTimeoutId);
+      hintTimeoutId = null;
+    }
+
     const config = getLevelConfig(level);
     const tiles = generateTilePile(config);
 
@@ -240,8 +264,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
           );
           set({ tiles: newTiles, powerUps: newPowerUps });
 
-          // Remove highlight after 2 seconds
-          setTimeout(() => {
+          // Remove highlight after 2 seconds; store ID so it can be cancelled
+          if (hintTimeoutId !== null) clearTimeout(hintTimeoutId);
+          hintTimeoutId = setTimeout(() => {
+            hintTimeoutId = null;
             set({
               tiles: get().tiles.map((t) => ({ ...t, isSelected: false })),
             });
@@ -427,7 +453,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     try {
       const saved = await AsyncStorage.getItem('match_tile_profile');
       if (saved) {
-        const profile = JSON.parse(saved) as PlayerProfile;
+        const parsed = JSON.parse(saved);
+        if (!isValidProfile(parsed)) {
+          if (__DEV__) console.warn('[Profile] Saved data failed validation — resetting to default');
+          return; // Keep DEFAULT_PROFILE in state
+        }
+        const profile = parsed;
 
         // Regenerate lives based on time passed
         const now = Date.now();
@@ -442,7 +473,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         set({ profile, coins: profile.coins, lives: profile.lives });
       }
     } catch (e) {
-      console.warn('Failed to load profile:', e);
+      if (__DEV__) console.warn('Failed to load profile:', e);
     }
   },
 
@@ -451,7 +482,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const { profile } = get();
       await AsyncStorage.setItem('match_tile_profile', JSON.stringify(profile));
     } catch (e) {
-      console.warn('Failed to save profile:', e);
+      if (__DEV__) console.warn('Failed to save profile:', e);
     }
   },
 }));

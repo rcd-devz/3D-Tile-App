@@ -8,12 +8,12 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from '../config/constants';
-import { SHOP_ITEMS } from '../config/shop';
-import { ShopItem } from '../types';
-import { useGameStore } from '../store/gameStore';
-import { iapService } from '../services/IAPService';
-import { TopBar } from '../components/TopBar';
+import { COLORS } from './constants';
+import { SHOP_ITEMS } from './shop';
+import { ShopItem } from './types';
+import { useGameStore } from './gameStore';
+import { iapService } from './IAPService';
+import { TopBar } from './TopBar';
 
 export function ShopScreen() {
   const { addCoins, addPowerUp, refillLives } = useGameStore();

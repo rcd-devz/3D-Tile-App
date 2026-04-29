@@ -3,16 +3,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
-import { RootStackParamList, MainTabParamList } from '../types';
-import { COLORS } from '../config/constants';
+import { RootStackParamList, MainTabParamList } from './types';
+import { COLORS } from './constants';
 
 // Screens
-import { HomeScreen } from '../screens/HomeScreen';
-import { GameScreen } from '../screens/GameScreen';
-import { ShopScreen } from '../screens/ShopScreen';
-import { LeaderboardScreen } from '../screens/LeaderboardScreen';
-import { LevelCompleteScreen } from '../screens/LevelCompleteScreen';
-import { LevelFailedScreen } from '../screens/LevelFailedScreen';
+import { HomeScreen } from './HomeScreen';
+import { GameScreen } from './GameScreen';
+import { ShopScreen } from './ShopScreen';
+import { LeaderboardScreen } from './LeaderboardScreen';
+import { LevelCompleteScreen } from './LevelCompleteScreen';
+import { LevelFailedScreen } from './LevelFailedScreen';
 
 // ============================================================
 // NAVIGATION

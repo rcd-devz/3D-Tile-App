@@ -8,10 +8,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { useGameStore } from '../store/gameStore';
-import { COLORS } from '../config/constants';
-import { COIN_PRICES } from '../config/shop';
+import { RootStackParamList } from './types';
+import { useGameStore } from './gameStore';
+import { COLORS } from './constants';
+import { COIN_PRICES } from './shop';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 type RoutePropType = RouteProp<RootStackParamList, 'LevelFailed'>;
@@ -23,11 +23,20 @@ export function LevelFailedScreen() {
   const { coins, spendCoins, lives } = useGameStore();
 
   const canContinue = coins >= COIN_PRICES.continueGame;
+  const hasLives = lives > 0;
 
   const handleContinue = () => {
     if (spendCoins(COIN_PRICES.continueGame)) {
       navigation.replace('Game', { level });
     }
+  };
+
+  const handleRetry = () => {
+    navigation.replace('Game', { level });
+  };
+
+  const handleGoToShop = () => {
+    navigation.navigate('MainTabs', { screen: 'Shop' } as any);
   };
 
   return (
@@ -39,7 +48,9 @@ export function LevelFailedScreen() {
 
         <View style={styles.livesDisplay}>
           <Text style={styles.livesEmoji}>❤️</Text>
-          <Text style={styles.livesText}>{lives} lives remaining</Text>
+          <Text style={styles.livesText}>
+            {hasLives ? `${lives} lives remaining` : 'No lives left'}
+          </Text>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -54,16 +65,16 @@ export function LevelFailedScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Retry */}
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => navigation.replace('Game', { level })}
-            disabled={lives <= 0}
-          >
-            <Text style={styles.retryText}>
-              {lives > 0 ? 'Retry Level' : 'No Lives Left'}
-            </Text>
-          </TouchableOpacity>
+          {/* Retry — active if lives available; shows Shop link if not */}
+          {hasLives ? (
+            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+              <Text style={styles.retryText}>Retry Level</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.noLivesButton} onPress={handleGoToShop}>
+              <Text style={styles.noLivesText}>No Lives — Get More ❤️</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Home */}
           <TouchableOpacity
@@ -154,6 +165,21 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  noLivesButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.secondary,
+  },
+  noLivesText: {
+    color: COLORS.secondary,
+    fontSize: 16,
+    fontWeight: '600',
   },
   homeButton: {
     width: '100%',

@@ -1,19 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useGameStore } from '../store/gameStore';
-import { COLORS } from '../config/constants';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useGameStore } from './gameStore';
+import { COLORS } from './constants';
+import { RootStackParamList } from './types';
+
+type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 export function TopBar() {
   const { profile } = useGameStore();
+  const navigation = useNavigation<NavProp>();
+
+  const goToShop = () => {
+    navigation.navigate('MainTabs', { screen: 'Shop' } as any);
+  };
 
   return (
     <View style={styles.container}>
       {/* Lives */}
-      <TouchableOpacity style={styles.pill}>
-        <View style={styles.heartBadge}>
-          <Text style={styles.heartEmoji}>❤️</Text>
-          <Text style={styles.heartCount}>{profile.lives}</Text>
-        </View>
+      <TouchableOpacity style={styles.pill} onPress={goToShop}>
+        <Text style={styles.heartEmoji}>❤️</Text>
         <Text style={styles.pillText}>
           {profile.lives >= profile.maxLives ? 'FULL' : profile.lives}
         </Text>
@@ -21,7 +28,7 @@ export function TopBar() {
       </TouchableOpacity>
 
       {/* Coins */}
-      <TouchableOpacity style={styles.pill}>
+      <TouchableOpacity style={styles.pill} onPress={goToShop}>
         <Text style={styles.coinEmoji}>🪙</Text>
         <Text style={styles.pillText}>{profile.coins}</Text>
         <Text style={styles.plusIcon}>+</Text>
@@ -61,26 +68,8 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     gap: 6,
   },
-  heartBadge: {
-    position: 'relative',
-  },
   heartEmoji: {
     fontSize: 18,
-  },
-  heartCount: {
-    position: 'absolute',
-    top: -2,
-    right: -8,
-    backgroundColor: COLORS.secondary,
-    color: COLORS.textPrimary,
-    fontSize: 10,
-    fontWeight: 'bold',
-    borderRadius: 8,
-    width: 16,
-    height: 16,
-    textAlign: 'center',
-    lineHeight: 16,
-    overflow: 'hidden',
   },
   coinEmoji: {
     fontSize: 18,

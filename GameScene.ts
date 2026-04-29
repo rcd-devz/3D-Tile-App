@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { TileObject, TileObjectType } from '../types';
-import { OBJECT_METADATA } from '../config/levels';
-import { COLORS } from '../config/constants';
+import { TileObject, TileObjectType } from './types';
+import { OBJECT_METADATA } from './levels';
+import { COLORS } from './constants';
 
 // ============================================================
 // 3D SCENE MANAGER
@@ -231,6 +231,19 @@ export class GameScene {
     }
 
     return null;
+  }
+
+  /**
+   * Flash a tile with a brief white glow to confirm a tap before it disappears.
+   * Call this immediately before selectTile() so the player sees feedback.
+   */
+  flashTile(tileId: string): void {
+    const mesh = this.tileMeshes.get(tileId);
+    if (!mesh) return;
+    const mat = mesh.material as THREE.MeshStandardMaterial;
+    mat.emissive = new THREE.Color(0xffffff);
+    mat.emissiveIntensity = 0.8;
+    // The tile will be hidden by updateTiles() after ~1 frame, so no cleanup needed
   }
 
   /**

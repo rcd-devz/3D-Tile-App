@@ -1,4 +1,4 @@
-import { LevelConfig, TileObjectType } from '../types';
+import { LevelConfig, TileObjectType } from './types';
 
 // ============================================================
 // LEVEL CONFIGURATION SYSTEM

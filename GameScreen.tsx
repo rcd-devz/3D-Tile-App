@@ -6,22 +6,23 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { GLView } from 'expo-gl';
 import { Renderer } from 'expo-three';
 import * as THREE from 'three';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { useGameStore } from '../store/gameStore';
-import { GameScene } from '../game/GameScene';
-import { COLORS, SIZES } from '../config/constants';
-import { getLevelConfig } from '../config/levels';
-import { MatchTray } from '../components/MatchTray';
-import { GameHUD } from '../components/GameHUD';
-import { PauseOverlay } from '../components/PauseOverlay';
+import { RootStackParamList } from './types';
+import { useGameStore } from './gameStore';
+import { GameScene } from './GameScene';
+import { COLORS, SIZES } from './constants';
+import { getLevelConfig } from './levels';
+import { MatchTray } from './MatchTray';
+import { GameHUD } from './GameHUD';
+import { PauseOverlay } from './PauseOverlay';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 type GameRouteProp = RouteProp<RootStackParamList, 'Game'>;
@@ -54,6 +55,9 @@ export function GameScreen() {
   const glRef = useRef<any>(null);
   const animFrameRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const glHeightRef = useRef<number>(0);
+  const lastTapRef = useRef<number>(0);
+  const [glReady, setGlReady] = useState(false);
 
   // Start level on mount
   useEffect(() => {
@@ -67,7 +71,6 @@ export function GameScreen() {
 
   // Timer
   useEffect(() => {
-    // Always clear any existing interval before potentially starting a new one
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -112,6 +115,11 @@ export function GameScreen() {
     }
   }, [tiles]);
 
+  // Capture actual GL view height using onLayout
+  const handleGLContainerLayout = useCallback((event: any) => {
+    glHeightRef.current = event.nativeEvent.layout.height;
+  }, []);
+
   // GL Context setup
   const onGLContextCreate = useCallback(
     async (gl: any) => {
@@ -145,29 +153,36 @@ export function GameScreen() {
       };
 
       renderLoop();
+      setGlReady(true);
     },
     [tiles]
   );
 
-  // Handle tap on 3D scene
+  // Handle tap on 3D scene — debounced to prevent double-selects
   const handleScenePress = useCallback(
     (event: any) => {
       if (phase !== 'playing' || !gameSceneRef.current) return;
 
+      // Debounce: ignore taps within 300ms of last tap
+      const now = Date.now();
+      if (now - lastTapRef.current < 300) return;
+      lastTapRef.current = now;
+
       const { locationX, locationY } = event.nativeEvent;
 
-      // Account for GL view dimensions
-      const glWidth = SCREEN_WIDTH;
-      const glHeight = SCREEN_HEIGHT - 200; // Approximate space for HUD and tray
+      // Use measured layout height; fall back to reasonable estimate only if not yet measured
+      const glHeight = glHeightRef.current > 0 ? glHeightRef.current : gl_fallbackHeight();
 
       const tileId = gameSceneRef.current.getTileAtScreenPos(
         locationX,
         locationY,
-        glWidth,
+        SCREEN_WIDTH,
         glHeight
       );
 
       if (tileId) {
+        // Brief white flash on the 3D tile before it moves to the tray
+        gameSceneRef.current?.flashTile(tileId);
         selectTile(tileId);
       }
     },
@@ -195,11 +210,19 @@ export function GameScreen() {
         style={styles.glContainer}
         activeOpacity={1}
         onPress={handleScenePress}
+        onLayout={handleGLContainerLayout}
       >
         <GLView
           style={styles.glView}
           onContextCreate={onGLContextCreate}
         />
+        {/* Loading overlay — shown until GL is ready */}
+        {!glReady && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.loadingText}>Loading...</Text>
+          </View>
+        )}
       </TouchableOpacity>
 
       {/* Power-ups & Tray */}
@@ -218,7 +241,7 @@ export function GameScreen() {
             </View>
           </TouchableOpacity>
 
-          {/* Multiplier bar */}
+          {/* Timer / combo bar */}
           <View style={styles.multiplierContainer}>
             <View
               style={[
@@ -228,7 +251,7 @@ export function GameScreen() {
               ]}
             />
             <Text style={styles.multiplierText}>
-              x{combo > 0 ? combo + 1 : 1}
+              {combo > 0 ? `x${combo + 1}` : 'COMBO'}
             </Text>
           </View>
 
@@ -257,6 +280,12 @@ export function GameScreen() {
   );
 }
 
+// Fallback height estimate used only before first layout measurement
+function gl_fallbackHeight() {
+  const { height } = Dimensions.get('window');
+  return height * 0.6;
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -267,6 +296,18 @@ const styles = StyleSheet.create({
   },
   glView: {
     flex: 1,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  loadingText: {
+    color: COLORS.textSecondary,
+    fontSize: 16,
+    fontWeight: '600',
   },
   bottomSection: {
     paddingBottom: Platform.OS === 'ios' ? 30 : 16,
@@ -293,8 +334,8 @@ const styles = StyleSheet.create({
   },
   powerUpBadge: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
+    bottom: 0,
+    right: 0,
     backgroundColor: COLORS.accentGreen,
     borderRadius: 10,
     width: 20,
