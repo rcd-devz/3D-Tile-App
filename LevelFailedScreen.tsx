@@ -8,10 +8,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { useGameStore } from '../store/gameStore';
-import { COLORS } from '../config/constants';
-import { COIN_PRICES } from '../config/shop';
+import { RootStackParamList } from './types';
+import { useGameStore } from './gameStore';
+import { COLORS } from './constants';
+import { COIN_PRICES } from './shop';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 type RoutePropType = RouteProp<RootStackParamList, 'LevelFailed'>;

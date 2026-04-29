@@ -13,14 +13,14 @@ import { Renderer } from 'expo-three';
 import * as THREE from 'three';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { useGameStore } from '../store/gameStore';
-import { GameScene } from '../game/GameScene';
-import { COLORS, SIZES } from '../config/constants';
-import { getLevelConfig } from '../config/levels';
-import { MatchTray } from '../components/MatchTray';
-import { GameHUD } from '../components/GameHUD';
-import { PauseOverlay } from '../components/PauseOverlay';
+import { RootStackParamList } from './types';
+import { useGameStore } from './gameStore';
+import { GameScene } from './GameScene';
+import { COLORS, SIZES } from './constants';
+import { getLevelConfig } from './levels';
+import { MatchTray } from './MatchTray';
+import { GameHUD } from './GameHUD';
+import { PauseOverlay } from './PauseOverlay';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

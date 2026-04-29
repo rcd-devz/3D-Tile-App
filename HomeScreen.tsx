@@ -11,10 +11,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { useGameStore } from '../store/gameStore';
-import { COLORS } from '../config/constants';
-import { TopBar } from '../components/TopBar';
+import { RootStackParamList } from './types';
+import { useGameStore } from './gameStore';
+import { COLORS } from './constants';
+import { TopBar } from './TopBar';
 
 const { width } = Dimensions.get('window');
 

@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useGameStore } from '../store/gameStore';
-import { COLORS } from '../config/constants';
-import { RootStackParamList } from '../types';
+import { useGameStore } from './gameStore';
+import { COLORS } from './constants';
+import { RootStackParamList } from './types';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 

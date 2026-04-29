@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, View, Text } from 'react-native';
-import { AppNavigator } from './src/navigation/AppNavigator';
+import { AppNavigator } from './AppNavigator';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },

@@ -8,10 +8,10 @@ import {
   TileObjectType,
   PowerUp,
   PowerUpType,
-} from '../types';
-import { getLevelConfig } from '../config/levels';
-import { SIZES, GAME_CONFIG } from '../config/constants';
-import { generateTilePile } from '../game/TileGenerator';
+} from './types';
+import { getLevelConfig } from './levels';
+import { SIZES, GAME_CONFIG } from './constants';
+import { generateTilePile } from './TileGenerator';
 
 // ============================================================
 // GAME STORE (Zustand)

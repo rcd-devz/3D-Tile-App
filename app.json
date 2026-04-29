@@ -29,7 +29,6 @@
       "policy": "appVersion"
     },
     "plugins": [
-      ["expo-router"],
       ["expo-splash-screen", {
         "backgroundColor": "#1a1a2e",
         "image": "./assets/images/splash.png",

@@ -10,8 +10,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { COLORS } from '../config/constants';
+import { RootStackParamList } from './types';
+import { COLORS } from './constants';
 
 const { width } = Dimensions.get('window');
 

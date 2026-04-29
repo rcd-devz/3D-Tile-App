@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, Animated } from 'react-native';
-import { TileObject } from '../types';
-import { OBJECT_METADATA } from '../config/levels';
-import { COLORS, SIZES } from '../config/constants';
+import { TileObject } from './types';
+import { OBJECT_METADATA } from './levels';
+import { COLORS, SIZES } from './constants';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SLOT_SIZE = (SCREEN_WIDTH - 48) / SIZES.traySlotCount;

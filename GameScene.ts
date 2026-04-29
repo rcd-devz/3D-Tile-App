@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { TileObject, TileObjectType } from '../types';
-import { OBJECT_METADATA } from '../config/levels';
-import { COLORS } from '../config/constants';
+import { TileObject, TileObjectType } from './types';
+import { OBJECT_METADATA } from './levels';
+import { COLORS } from './constants';
 
 // ============================================================
 // 3D SCENE MANAGER
