@@ -22,12 +22,6 @@
       "versionCode": 1,
       "minSdkVersion": 24
     },
-    "updates": {
-      "url": "https://u.expo.dev/PLACEHOLDER"
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
     "plugins": [
       ["expo-splash-screen", {
         "backgroundColor": "#1a1a2e",
