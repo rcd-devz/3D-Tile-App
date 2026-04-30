@@ -7,6 +7,14 @@
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "dark",
     "assetBundlePatterns": ["**/*"],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5ef9facf-ea94-4de8-9025-9af0784540a9",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.gncdevs.matchtile3d",
