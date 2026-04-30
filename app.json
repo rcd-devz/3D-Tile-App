@@ -23,6 +23,7 @@
       "minSdkVersion": 24
     },
     "plugins": [
+      "expo-dev-client",
       ["expo-splash-screen", {
         "backgroundColor": "#1a1a2e",
         "image": "./assets/images/splash.png",
