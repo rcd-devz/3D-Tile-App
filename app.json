@@ -10,8 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.gncdevs.matchtile3d",
-      "buildNumber": "1",
-      "deploymentTarget": "15.1"
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,11 +18,14 @@
         "backgroundColor": "#1a1a2e"
       },
       "package": "com.gncdevs.matchtile3d",
-      "versionCode": 1,
-      "minSdkVersion": 24
+      "versionCode": 1
     },
     "plugins": [
       "expo-dev-client",
+      ["expo-build-properties", {
+        "ios": { "deploymentTarget": "15.1" },
+        "android": { "minSdkVersion": 24 }
+      }],
       ["expo-splash-screen", {
         "backgroundColor": "#1a1a2e",
         "image": "./assets/images/splash.png",
