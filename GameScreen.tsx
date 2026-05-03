@@ -110,8 +110,20 @@ export function GameScreen() {
 
   // Update 3D scene when tiles change
   useEffect(() => {
-    if (gameSceneRef.current) {
-      gameSceneRef.current.updateTiles(tiles);
+    const scene = gameSceneRef.current;
+    if (!scene) return;
+
+    // If the mesh set doesn't match the current tile set (e.g. level just
+    // loaded after GL was already initialized, or a new level started),
+    // rebuild meshes. Otherwise just update visual state on existing meshes.
+    const meshesMatchTiles =
+      scene.tileMeshes.size === tiles.length &&
+      tiles.every((t) => scene.tileMeshes.has(t.id));
+
+    if (!meshesMatchTiles) {
+      scene.createTileMeshes(tiles);
+    } else {
+      scene.updateTiles(tiles);
     }
   }, [tiles]);
 
@@ -135,7 +147,9 @@ export function GameScreen() {
         gl.drawingBufferHeight
       );
       scene.renderer = renderer;
-      scene.createTileMeshes(tiles);
+      // Build meshes for any tiles already in the store. If tiles arrive
+      // after GL init, the [tiles] effect below will populate them.
+      scene.createTileMeshes(useGameStore.getState().tiles);
       gameSceneRef.current = scene;
 
       // Render loop
@@ -155,7 +169,7 @@ export function GameScreen() {
       renderLoop();
       setGlReady(true);
     },
-    [tiles]
+    []
   );
 
   // Handle tap on 3D scene — debounced to prevent double-selects
