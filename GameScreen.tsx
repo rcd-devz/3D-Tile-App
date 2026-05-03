@@ -55,7 +55,10 @@ export function GameScreen() {
   const glRef = useRef<any>(null);
   const animFrameRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const glHeightRef = useRef<number>(0);
+  const glContainerRef = useRef<View | null>(null);
+  // Container rect in window coords — needed on web because nativeEvent.locationX/Y
+  // is unreliable; we fall back to pageX/pageY minus this offset.
+  const glRectRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const lastTapRef = useRef<number>(0);
   const [glReady, setGlReady] = useState(false);
 
@@ -127,9 +130,23 @@ export function GameScreen() {
     }
   }, [tiles]);
 
-  // Capture actual GL view height using onLayout
+  // Capture GL container rect in window coordinates so we can convert
+  // pageX/pageY into local coords on web (where locationX/Y is unreliable).
   const handleGLContainerLayout = useCallback((event: any) => {
-    glHeightRef.current = event.nativeEvent.layout.height;
+    const node: any = glContainerRef.current;
+    if (node && typeof node.measureInWindow === 'function') {
+      node.measureInWindow((x: number, y: number, width: number, height: number) => {
+        glRectRef.current = { x, y, width, height };
+      });
+    } else if (node && typeof node.getBoundingClientRect === 'function') {
+      // Web fallback when ref is a DOM node
+      const r = node.getBoundingClientRect();
+      glRectRef.current = { x: r.left, y: r.top, width: r.width, height: r.height };
+    } else {
+      // Last resort: use layout dims (no x/y offset, page coords won't work)
+      const { width, height } = event.nativeEvent.layout;
+      glRectRef.current = { x: 0, y: 0, width, height };
+    }
   }, []);
 
   // GL Context setup
@@ -182,16 +199,38 @@ export function GameScreen() {
       if (now - lastTapRef.current < 300) return;
       lastTapRef.current = now;
 
-      const { locationX, locationY } = event.nativeEvent;
+      const ne = event.nativeEvent;
 
-      // Use measured layout height; fall back to reasonable estimate only if not yet measured
-      const glHeight = glHeightRef.current > 0 ? glHeightRef.current : gl_fallbackHeight();
+      // Re-measure synchronously on web in case the page scrolled/resized.
+      const node: any = glContainerRef.current;
+      if (node && typeof node.getBoundingClientRect === 'function') {
+        const r = node.getBoundingClientRect();
+        glRectRef.current = { x: r.left, y: r.top, width: r.width, height: r.height };
+      }
+      const rect = glRectRef.current;
+
+      // Prefer locationX/Y (native); fall back to pageX/pageY minus container
+      // offset (web — RN-Web doesn't reliably populate locationX/Y).
+      let localX = ne.locationX;
+      let localY = ne.locationY;
+      if (
+        (localX === undefined || localY === undefined) &&
+        typeof ne.pageX === 'number' &&
+        typeof ne.pageY === 'number'
+      ) {
+        localX = ne.pageX - rect.x;
+        localY = ne.pageY - rect.y;
+      }
+      if (localX === undefined || localY === undefined) return;
+
+      const viewWidth = rect.width > 0 ? rect.width : SCREEN_WIDTH;
+      const viewHeight = rect.height > 0 ? rect.height : gl_fallbackHeight();
 
       const tileId = gameSceneRef.current.getTileAtScreenPos(
-        locationX,
-        locationY,
-        SCREEN_WIDTH,
-        glHeight
+        localX,
+        localY,
+        viewWidth,
+        viewHeight
       );
 
       if (tileId) {
@@ -221,6 +260,7 @@ export function GameScreen() {
 
       {/* 3D Scene */}
       <TouchableOpacity
+        ref={glContainerRef as any}
         style={styles.glContainer}
         activeOpacity={1}
         onPress={handleScenePress}
